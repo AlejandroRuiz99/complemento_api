@@ -1,0 +1,530 @@
+openapi: 3.0.2
+info:
+  title: Complemento de Paternidad API
+  description: |
+    API para calcular y gestionar el Complemento de Paternidad según la normativa española.
+    
+    ## Períodos de aplicación:
+    - **Período 1** (01/01/2016 - 03/02/2021): Solo pensiones de jubilación, cálculo porcentual
+    - **Período 2** (desde 01/04/2021): Jubilación e incapacidad, importe fijo por hijo
+    
+    ## Reglas de cálculo:
+    ### Período 1:
+    - 2 hijos → 2% adicional sobre la pensión
+    - 3 hijos → 3% adicional sobre la pensión  
+    - ≥4 hijos → 15% adicional sobre la pensión
+    
+    ### Período 2:
+    - 35€ por hijo (máximo 4 hijos)
+    - Solo puede cobrarse uno de los dos posibles complementos (el de menor cuantía)
+    
+    ## Normativa aplicable:
+    - Real Decreto-ley 3/2021 de 2 de febrero
+    - Ley 21/2021 de 28 de diciembre
+    - Normativa de la Seguridad Social española
+  version: 1.0.0
+  contact:
+    name: Complemento de Paternidad API
+    email: soporte@complementopaternidad.es
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://tu-app-complemento-paternidad.herokuapp.com
+    description: Servidor de producción en Heroku
+  - url: http://localhost:8000
+    description: Servidor de desarrollo local
+
+paths:
+  /health:
+    get:
+      summary: Verificación de salud del servicio
+      description: Endpoint para verificar que el servicio está funcionando correctamente
+      tags:
+        - Sistema
+      responses:
+        '200':
+          description: Servicio funcionando correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: healthy
+                timestamp: "2024-01-15T10:30:00Z"
+                version: "1.0.0"
+
+  /eligibility:
+    get:
+      summary: Verificar elegibilidad básica
+      description: |
+        Verifica si el solicitante cumple los criterios básicos de elegibilidad
+        para el complemento de paternidad según el tipo de pensión, fecha y número de hijos.
+      tags:
+        - Elegibilidad
+      parameters:
+        - name: pension_type
+          in: query
+          required: true
+          description: Tipo de pensión
+          schema:
+            type: string
+            enum: [jubilacion, incapacidad, viudedad]
+        - name: start_date
+          in: query
+          required: true
+          description: Fecha de inicio de la pensión (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: num_children
+          in: query
+          required: true
+          description: Número de hijos (mínimo 1)
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Resultado de elegibilidad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EligibilityResponse'
+              examples:
+                elegible_periodo_1:
+                  summary: Elegible en Período 1
+                  value:
+                    eligible: true
+                    period: "1"
+                    reason: null
+                no_elegible_periodo_1:
+                  summary: No elegible en Período 1
+                  value:
+                    eligible: false
+                    period: "1"
+                    reason: "En el Período 1 solo aplica para pensiones de jubilación"
+        '400':
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /calculate:
+    post:
+      summary: Calcular complemento de paternidad
+      description: |
+        Calcula el complemento de paternidad basado en el tipo de pensión,
+        fecha de inicio, número de hijos y cuantía de la pensión.
+      tags:
+        - Cálculos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalculationRequest'
+            examples:
+              periodo_1:
+                summary: Cálculo Período 1
+                value:
+                  pension_type: "jubilacion"
+                  start_date: "2020-06-15"
+                  num_children: 2
+                  pension_amount: 1000.0
+              periodo_2:
+                summary: Cálculo Período 2
+                value:
+                  pension_type: "jubilacion"
+                  start_date: "2021-06-15"
+                  num_children: 2
+                  pension_amount: 1500.0
+      responses:
+        '200':
+          description: Cálculo del complemento exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalculationResponse'
+              examples:
+                resultado_periodo_1:
+                  summary: Resultado Período 1
+                  value:
+                    period: "1"
+                    complement_percent: 2.0
+                    complement_fixed: null
+                    amount: 20.0
+                    pension_with_complement: 1020.0
+                resultado_periodo_2:
+                  summary: Resultado Período 2
+                  value:
+                    period: "2"
+                    complement_percent: null
+                    complement_fixed: 35.0
+                    amount: 70.0
+                    pension_with_complement: 1570.0
+        '400':
+          description: Error en los datos de entrada o no cumple elegibilidad
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /retroactive:
+    get:
+      summary: Calcular atrasos acumulados
+      description: |
+        Calcula el total de atrasos acumulados del complemento de paternidad
+        entre dos fechas especificadas.
+      tags:
+        - Cálculos
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          description: Fecha de inicio del período (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          description: Fecha de fin del período (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: pension_amount
+          in: query
+          required: true
+          description: Cuantía de la pensión en euros
+          schema:
+            type: number
+            minimum: 0
+        - name: num_children
+          in: query
+          required: true
+          description: Número de hijos
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 4
+      responses:
+        '200':
+          description: Cálculo de atrasos exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetroactiveResponse'
+              example:
+                total_amount: 210.0
+                months_calculated: 3
+                period_1_amount: null
+                period_2_amount: 210.0
+        '400':
+          description: Parámetros inválidos o fechas incorrectas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /compare:
+    post:
+      summary: Comparar progenitores
+      description: |
+        Compara dos progenitores para determinar cuál tiene derecho
+        al complemento de paternidad según la normativa.
+      tags:
+        - Comparación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompareRequest'
+            example:
+              progenitor_1:
+                name: "María"
+                pension_amount: 1000.0
+                num_children: 2
+                start_date: "2021-06-15"
+                pension_type: "jubilacion"
+              progenitor_2:
+                name: "José"
+                pension_amount: 1200.0
+                num_children: 2
+                start_date: "2021-06-15"
+                pension_type: "jubilacion"
+      responses:
+        '200':
+          description: Resultado de la comparación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompareResponse'
+              example:
+                eligible_progenitor: "María"
+                progenitor_1:
+                  name: "María"
+                  eligible: true
+                  complement_amount: 70.0
+                  total_pension: 1070.0
+                progenitor_2:
+                  name: "José"
+                  eligible: true
+                  complement_amount: 70.0
+                  total_pension: 1270.0
+                explanation: "Ambos son elegibles, se otorga a María por tener menor pensión"
+
+  /spec:
+    get:
+      summary: Especificación OpenAPI
+      description: Devuelve la especificación OpenAPI completa de la API
+      tags:
+        - Sistema
+      responses:
+        '200':
+          description: Especificación OpenAPI
+          content:
+            application/json:
+              schema:
+                type: object
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+        - version
+      properties:
+        status:
+          type: string
+          description: Estado del servicio
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          description: Marca de tiempo
+        version:
+          type: string
+          description: Versión de la API
+          example: "1.0.0"
+
+    EligibilityResponse:
+      type: object
+      required:
+        - eligible
+      properties:
+        eligible:
+          type: boolean
+          description: Si cumple los criterios básicos
+        period:
+          type: string
+          enum: ["1", "2"]
+          description: Período aplicable
+          nullable: true
+        reason:
+          type: string
+          description: Razón de no elegibilidad
+          nullable: true
+
+    CalculationRequest:
+      type: object
+      required:
+        - pension_type
+        - start_date
+        - num_children
+        - pension_amount
+      properties:
+        pension_type:
+          type: string
+          enum: [jubilacion, incapacidad, viudedad]
+          description: Tipo de pensión
+        start_date:
+          type: string
+          format: date
+          description: Fecha de inicio de la pensión
+        num_children:
+          type: integer
+          minimum: 1
+          maximum: 4
+          description: Número de hijos
+        pension_amount:
+          type: number
+          minimum: 0
+          description: Cuantía de la pensión en euros
+
+    CalculationResponse:
+      type: object
+      required:
+        - period
+        - amount
+        - pension_with_complement
+      properties:
+        period:
+          type: string
+          enum: ["1", "2"]
+          description: Período aplicable
+        complement_percent:
+          type: number
+          description: Porcentaje adicional (Período 1)
+          nullable: true
+        complement_fixed:
+          type: number
+          description: Importe fijo por hijo (Período 2)
+          nullable: true
+        amount:
+          type: number
+          description: Cantidad total del complemento
+        pension_with_complement:
+          type: number
+          description: Pensión total con complemento
+
+    RetroactiveResponse:
+      type: object
+      required:
+        - total_amount
+        - months_calculated
+      properties:
+        total_amount:
+          type: number
+          description: Total de atrasos acumulados
+        months_calculated:
+          type: integer
+          description: Número de meses calculados
+        period_1_amount:
+          type: number
+          description: Importe del Período 1
+          nullable: true
+        period_2_amount:
+          type: number
+          description: Importe del Período 2
+          nullable: true
+
+    CompareProgenitor:
+      type: object
+      required:
+        - name
+        - pension_amount
+        - num_children
+        - start_date
+        - pension_type
+      properties:
+        name:
+          type: string
+          description: Nombre del progenitor
+        pension_amount:
+          type: number
+          minimum: 0
+          description: Cuantía de la pensión
+        num_children:
+          type: integer
+          minimum: 1
+          maximum: 4
+          description: Número de hijos
+        start_date:
+          type: string
+          format: date
+          description: Fecha de inicio de la pensión
+        pension_type:
+          type: string
+          enum: [jubilacion, incapacidad, viudedad]
+          description: Tipo de pensión
+
+    CompareRequest:
+      type: object
+      required:
+        - progenitor_1
+        - progenitor_2
+      properties:
+        progenitor_1:
+          $ref: '#/components/schemas/CompareProgenitor'
+        progenitor_2:
+          $ref: '#/components/schemas/CompareProgenitor'
+
+    CompareResult:
+      type: object
+      required:
+        - name
+        - eligible
+      properties:
+        name:
+          type: string
+          description: Nombre del progenitor
+        eligible:
+          type: boolean
+          description: Si tiene derecho al complemento
+        complement_amount:
+          type: number
+          description: Cantidad del complemento
+          nullable: true
+        total_pension:
+          type: number
+          description: Pensión total con complemento
+          nullable: true
+
+    CompareResponse:
+      type: object
+      required:
+        - eligible_progenitor
+        - progenitor_1
+        - progenitor_2
+        - explanation
+      properties:
+        eligible_progenitor:
+          type: string
+          description: Nombre del progenitor con derecho
+        progenitor_1:
+          $ref: '#/components/schemas/CompareResult'
+        progenitor_2:
+          $ref: '#/components/schemas/CompareResult'
+        explanation:
+          type: string
+          description: Explicación de por qué tiene derecho
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Tipo de error
+        message:
+          type: string
+          description: Mensaje descriptivo del error
+        details:
+          type: string
+          description: Detalles adicionales del error
+          nullable: true
+
+  examples:
+    PensionTypeJubilacion:
+      value: "jubilacion"
+      summary: Pensión de jubilación
+    
+    PensionTypeIncapacidad:
+      value: "incapacidad"
+      summary: Pensión de incapacidad permanente
+    
+    Period1Date:
+      value: "2020-06-15"
+      summary: Fecha en Período 1
+    
+    Period2Date:
+      value: "2021-06-15"
+      summary: Fecha en Período 2
+
+tags:
+  - name: Sistema
+    description: Endpoints del sistema y salud
+  - name: Elegibilidad
+    description: Verificación de criterios de elegibilidad
+  - name: Cálculos
+    description: Cálculos del complemento y atrasos
+  - name: Comparación
+    description: Comparación entre progenitores

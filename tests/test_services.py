@@ -84,7 +84,7 @@ class TestComplementoPaternidadService:
         
         assert result.eligible == False
         assert result.period == PeriodType.PERIOD_1
-        assert "Período 1 solo aplica para jubilaciones ordinarias" in result.reason
+        assert "Período 1 solo aplica para jubilaciones" in result.reason
     
     def test_check_eligibility_period_2_jubilacion_anticipada_valid(self):
         """Test elegibilidad período 2 con jubilación anticipada (válida)."""

@@ -56,7 +56,7 @@ class ComplementoPaternidadService:
                 return EligibilityResponse(
                     eligible=False,
                     period=period,
-                    reason=f"En el Período 1 solo aplica para jubilaciones ordinarias, no {pension_type}"
+                    reason=f"En el Período 1 solo aplica para jubilaciones, no {pension_type}"
                 )
         
         elif period == PeriodType.PERIOD_2:

@@ -16,17 +16,17 @@ class ComplementoPaternidadService:
     # Constantes para los cálculos
     PERIOD_1_START = date(2016, 1, 1)
     PERIOD_1_END = date(2021, 2, 3)
-    PERIOD_2_START = date(2021, 4, 1)
+    PERIOD_2_START = date(2021, 2, 4)
     
     # Porcentajes para el Período 1
     PERIOD_1_PERCENTAGES = {
-        2: 2.0,   # 2%
-        3: 3.0,   # 3%
+        2: 5.0,   # 5%
+        3: 10.0,  # 10%
         4: 15.0   # 15% para 4 o más hijos
     }
     
-    # Importe fijo para el Período 2 (35€ por hijo en 2021, actualizado)
-    PERIOD_2_AMOUNT_PER_CHILD = 35.0
+    # Importe fijo para el Período 2 (35,90€ por hijo desde febrero 2021)
+    PERIOD_2_AMOUNT_PER_CHILD = 35.90
     
     def check_eligibility(
         self, 
@@ -51,21 +51,22 @@ class ComplementoPaternidadService:
         period = date_to_period(start_date)
         
         if period == PeriodType.PERIOD_1:
-            # Período 1: Solo pensiones contributivas de jubilación
+            # Período 1: Solo jubilaciones ordinarias (excluye anticipadas)
             if pension_type != PensionType.JUBILACION:
                 return EligibilityResponse(
                     eligible=False,
                     period=period,
-                    reason=f"En el Período 1 solo aplica para pensiones de jubilación, no {pension_type}"
+                    reason=f"En el Período 1 solo aplica para jubilaciones ordinarias, no {pension_type}"
                 )
         
         elif period == PeriodType.PERIOD_2:
-            # Período 2: Todas las jubilaciones contributivas (ordinarias y anticipadas)
-            if pension_type not in [PensionType.JUBILACION, PensionType.INCAPACIDAD]:
+            # Período 2: Jubilaciones (ordinarias y anticipadas), incapacidad y viudedad
+            if pension_type not in [PensionType.JUBILACION, PensionType.JUBILACION_ANTICIPADA, 
+                                   PensionType.INCAPACIDAD, PensionType.VIUDEDAD]:
                 return EligibilityResponse(
                     eligible=False,
                     period=period,
-                    reason=f"En el Período 2 solo aplica para jubilación e incapacidad, no {pension_type}"
+                    reason=f"En el Período 2 solo aplica para jubilación, incapacidad y viudedad, no {pension_type}"
                 )
         
         else:

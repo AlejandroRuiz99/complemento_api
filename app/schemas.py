@@ -9,18 +9,19 @@ from enum import Enum
 
 class PensionType(str, Enum):
     """Tipos de pensión válidos."""
-    JUBILACION = "jubilacion"
+    JUBILACION = "jubilacion"  # Jubilación ordinaria
+    JUBILACION_ANTICIPADA = "jubilacion_anticipada"  # Jubilación anticipada
     INCAPACIDAD = "incapacidad" 
     VIUDEDAD = "viudedad"
 
 class PeriodType(str, Enum):
     """Períodos del complemento de paternidad."""
     PERIOD_1 = "1"  # 01-01-2016 a 03-02-2021
-    PERIOD_2 = "2"  # a partir de abril 2021
+    PERIOD_2 = "2"  # a partir de febrero 2021
 
 class EligibilityRequest(BaseModel):
     """Esquema para verificar elegibilidad básica."""
-    pension_type: PensionType = Field(..., description="Tipo de pensión (jubilacion|incapacidad|viudedad)")
+    pension_type: PensionType = Field(..., description="Tipo de pensión (jubilacion|jubilacion_anticipada|incapacidad|viudedad)")
     start_date: date = Field(..., description="Fecha de inicio de la pensión (YYYY-MM-DD)")
     num_children: int = Field(..., ge=1, description="Número de hijos (mínimo 1)")
     

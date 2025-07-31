@@ -40,7 +40,7 @@ class TestUtils:
     
     def test_date_to_period_boundary_period_2_start(self):
         """Test fecha límite inicio período 2."""
-        test_date = date(2021, 4, 1)
+        test_date = date(2021, 2, 4)
         result = date_to_period(test_date)
         assert result == PeriodType.PERIOD_2
     

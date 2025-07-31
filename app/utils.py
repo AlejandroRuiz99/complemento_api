@@ -18,7 +18,7 @@ def date_to_period(input_date: date) -> Optional[PeriodType]:
     """
     period_1_start = date(2016, 1, 1)
     period_1_end = date(2021, 2, 3)
-    period_2_start = date(2021, 4, 1)
+    period_2_start = date(2021, 2, 4)
     
     if period_1_start <= input_date <= period_1_end:
         return PeriodType.PERIOD_1
@@ -127,7 +127,7 @@ def get_period_description(period: PeriodType) -> str:
     if period == PeriodType.PERIOD_1:
         return "Período 1 (01/01/2016 - 03/02/2021): Solo jubilación, cálculo porcentual"
     elif period == PeriodType.PERIOD_2:
-        return "Período 2 (desde 01/04/2021): Jubilación e incapacidad, importe fijo"
+        return "Período 2 (desde 04/02/2021): Jubilación e incapacidad, importe fijo"
     else:
         return "Período no definido"
 

@@ -5,17 +5,17 @@ info:
     API para calcular y gestionar el Complemento de Paternidad según la normativa española.
     
     ## Períodos de aplicación:
-    - **Período 1** (01/01/2016 - 03/02/2021): Solo pensiones de jubilación, cálculo porcentual
-    - **Período 2** (desde 01/04/2021): Jubilación e incapacidad, importe fijo por hijo
+    - **Período 1** (01/01/2016 - 03/02/2021): Solo jubilaciones ordinarias (excluye anticipadas), cálculo porcentual
+    - **Período 2** (desde 04/02/2021): Jubilación, incapacidad y viudedad, importe fijo por hijo
     
     ## Reglas de cálculo:
     ### Período 1:
-    - 2 hijos → 2% adicional sobre la pensión
-    - 3 hijos → 3% adicional sobre la pensión  
-    - ≥4 hijos → 15% adicional sobre la pensión
+    - 2 hijos → 5% adicional sobre la pensión
+- 3 hijos → 10% adicional sobre la pensión
+- ≥4 hijos → 15% adicional sobre la pensión
     
     ### Período 2:
-    - 35€ por hijo (máximo 4 hijos)
+    - 35,90€ por hijo (máximo 4 hijos)
     - Solo puede cobrarse uno de los dos posibles complementos (el de menor cuantía)
     
     ## Normativa aplicable:

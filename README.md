@@ -16,15 +16,17 @@ API REST para calcular y gestionar el Complemento de Paternidad según la normat
 ### Períodos de Aplicación
 
 #### Período 1 (01/01/2016 - 03/02/2021)
-- **Solo pensiones contributivas de jubilación**
+- **Solo jubilaciones ordinarias** (excluye anticipadas)
 - **Cálculo porcentual** sobre la cuantía de la pensión:
-  - 2 hijos → 2%
-  - 3 hijos → 3%
-  - ≥4 hijos → 15%
+  - 2 hijos → 5%
+- 3 hijos → 10%
+- ≥4 hijos → 15%
 
-#### Período 2 (desde 01/04/2021)
-- **Todas las jubilaciones contributivas** (ordinarias y anticipadas)
-- **Importe fijo**: 35€ por hijo (límite: 4 hijos)
+#### Período 2 (desde 04/02/2021)
+- **Jubilaciones** (ordinarias y anticipadas)
+- **Pensiones de incapacidad**
+- **Pensiones de viudedad**
+- **Importe fijo**: 35,90€ por hijo (límite: 4 hijos)
 - Solo puede cobrarse uno de los dos posibles complementos (el de menor cuantía)
 
 ### Endpoints Disponibles

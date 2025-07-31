@@ -50,7 +50,7 @@ async def check_eligibility(
     Verificar si el solicitante cumple los criterios básicos de elegibilidad.
     
     Args:
-        pension_type: Tipo de pensión (jubilacion|incapacidad|viudedad)
+        pension_type: Tipo de pensión (jubilacion|jubilacion_anticipada|incapacidad|viudedad)
         start_date: Fecha de inicio de la pensión (YYYY-MM-DD)
         num_children: Número de hijos (entero >= 1)
         
@@ -203,17 +203,17 @@ async def get_openapi_spec():
     API para calcular y gestionar el Complemento de Paternidad según la normativa española.
     
     ## Períodos de aplicación:
-    - **Período 1** (01/01/2016 - 03/02/2021): Solo pensiones de jubilación, cálculo porcentual
-    - **Período 2** (desde 01/04/2021): Jubilación e incapacidad, importe fijo por hijo
+    - **Período 1** (01/01/2016 - 03/02/2021): Solo jubilaciones ordinarias (excluye anticipadas), cálculo porcentual
+    - **Período 2** (desde 04/02/2021): Jubilación, incapacidad y viudedad, importe fijo por hijo
     
     ## Reglas de cálculo:
     ### Período 1:
-    - 2 hijos → 2% adicional
-    - 3 hijos → 3% adicional  
-    - ≥4 hijos → 15% adicional
+    - 2 hijos → 5% adicional
+- 3 hijos → 10% adicional
+- ≥4 hijos → 15% adicional
     
     ### Período 2:
-    - 35€ por hijo (máximo 4 hijos)
+    - 35,90€ por hijo (máximo 4 hijos)
     - Solo puede cobrarse uno de los dos posibles complementos (el de menor cuantía)
     """
     

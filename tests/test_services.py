@@ -26,17 +26,41 @@ class TestComplementoPaternidadService:
         assert result.period == PeriodType.PERIOD_1
         assert result.reason is None
     
-    def test_check_eligibility_period_1_incapacidad_invalid(self):
-        """Test elegibilidad período 1 con incapacidad (no válida)."""
+    def test_check_eligibility_period_1_incapacidad_valid(self):
+        """Test elegibilidad período 1 con incapacidad (válida)."""
         result = self.service.check_eligibility(
             PensionType.INCAPACIDAD,
             date(2020, 6, 15),
             2
         )
         
+        assert result.eligible == True
+        assert result.period == PeriodType.PERIOD_1
+        assert result.reason is None
+    
+    def test_check_eligibility_period_1_viudedad_valid(self):
+        """Test elegibilidad período 1 con viudedad (válida)."""
+        result = self.service.check_eligibility(
+            PensionType.VIUDEDAD,
+            date(2020, 6, 15),
+            2
+        )
+        
+        assert result.eligible == True
+        assert result.period == PeriodType.PERIOD_1
+        assert result.reason is None
+    
+    def test_check_eligibility_period_1_one_child_invalid(self):
+        """Test elegibilidad período 1 con 1 hijo (no válida)."""
+        result = self.service.check_eligibility(
+            PensionType.JUBILACION,
+            date(2020, 6, 15),
+            1
+        )
+        
         assert result.eligible == False
         assert result.period == PeriodType.PERIOD_1
-        assert "Período 1 solo aplica para jubilaciones ordinarias" in result.reason
+        assert "Para el Período 1 se requieren al menos 2 hijos" in result.reason
     
     def test_check_eligibility_period_2_jubilacion_valid(self):
         """Test elegibilidad período 2 con jubilación válida."""
@@ -84,7 +108,7 @@ class TestComplementoPaternidadService:
         
         assert result.eligible == False
         assert result.period == PeriodType.PERIOD_1
-        assert "Período 1 solo aplica para jubilaciones" in result.reason
+        assert "En el Período 1 solo aplica para jubilación, viudedad e incapacidad" in result.reason
     
     def test_check_eligibility_period_2_jubilacion_anticipada_valid(self):
         """Test elegibilidad período 2 con jubilación anticipada (válida)."""

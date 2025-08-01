@@ -51,12 +51,20 @@ class ComplementoPaternidadService:
         period = date_to_period(start_date)
         
         if period == PeriodType.PERIOD_1:
-            # Período 1: Solo jubilaciones ordinarias (excluye anticipadas)
-            if pension_type != PensionType.JUBILACION:
+            # Período 1: Jubilaciones (excepto anticipadas voluntarias), viudedad e incapacidad
+            if pension_type not in [PensionType.JUBILACION, PensionType.VIUDEDAD, PensionType.INCAPACIDAD]:
                 return EligibilityResponse(
                     eligible=False,
                     period=period,
-                    reason=f"En el Período 1 solo aplica para jubilaciones, no {pension_type}"
+                    reason=f"En el Período 1 solo aplica para jubilación (excepto anticipadas voluntarias), viudedad e incapacidad, no {pension_type}"
+                )
+            
+            # Período 1 requiere mínimo 2 hijos
+            if num_children < 2:
+                return EligibilityResponse(
+                    eligible=False,
+                    period=period,
+                    reason=f"Para el Período 1 se requieren al menos 2 hijos (tiene {num_children})"
                 )
         
         elif period == PeriodType.PERIOD_2:

@@ -5,7 +5,7 @@ info:
     API para calcular y gestionar el Complemento de Paternidad según la normativa española.
     
     ## Períodos de aplicación:
-    - **Período 1** (01/01/2016 - 03/02/2021): Solo jubilaciones ordinarias (excluye anticipadas), cálculo porcentual
+    - **Período 1** (01/01/2016 - 03/02/2021): Jubilación (excepto anticipadas voluntarias), viudedad e incapacidad, mínimo 2 hijos, cálculo porcentual
     - **Período 2** (desde 04/02/2021): Jubilación, incapacidad y viudedad, importe fijo por hijo
     
     ## Reglas de cálculo:

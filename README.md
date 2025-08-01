@@ -16,7 +16,10 @@ API REST para calcular y gestionar el Complemento de Paternidad según la normat
 ### Períodos de Aplicación
 
 #### Período 1 (01/01/2016 - 03/02/2021)
-- **Solo jubilaciones ordinarias** (excluye anticipadas)
+- **Jubilaciones** (excepto anticipadas voluntarias)
+- **Pensiones de viudedad**
+- **Pensiones de incapacidad**
+- **Requisito**: Mínimo 2 hijos
 - **Cálculo porcentual** sobre la cuantía de la pensión:
   - 2 hijos → 5%
 - 3 hijos → 10%
